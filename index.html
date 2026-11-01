@@ -106,6 +106,24 @@
             accent-color: var(--text-primary);
         }
 
+        .mini-btn {
+            flex: none;
+            padding: 8px 10px;
+            min-width: 60px;
+        }
+
+        .timer-box {
+            background: rgba(102, 252, 241, 0.08);
+            border: 1px solid var(--cell-border);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-weight: bold;
+            font-size: 14px;
+            padding: 8px 10px;
+            margin-top: 6px;
+            text-align: center;
+        }
+
         .grid-container {
             display: grid;
             grid-template-columns: repeat(var(--grid-size), minmax(0, 1fr));
@@ -242,6 +260,13 @@
                 </select>
             </div>
             <div class="select-group">
+                <label for="time-limit-input">Time Limit:</label>
+                <div class="level-slider-container" style="width: auto;">
+                    <input type="number" id="time-limit-input" min="5" max="300" step="5" value="30" style="width: 76px;">
+                    <button class="btn mini-btn" type="button" onclick="applyCustomTime()">Set</button>
+                </div>
+            </div>
+            <div class="select-group">
                 <label>Jump to Level:</label>
                 <div class="level-slider-container">
                     <input type="range" id="level-slider" min="1" max="100" value="1" oninput="syncLevelFromSlider(this.value)">
@@ -249,6 +274,8 @@
                 </div>
             </div>
         </div>
+
+        <div class="timer-box" id="timer-box">Time: 00:30</div>
 
         <div class="grid-container" id="grid-container">
             <svg class="svg-overlay" id="svg-overlay"></svg>
@@ -270,6 +297,68 @@
         let trackedPath = [];
         let gridMatrix = [];
         let pathLocked = false;
+        let timeLimit = 30;
+        let timeRemaining = 30;
+        let timerInterval = null;
+        let gameActive = true;
+
+        function formatTime(totalSeconds) {
+            const safeSeconds = Math.max(0, totalSeconds);
+            const minutes = Math.floor(safeSeconds / 60);
+            const seconds = safeSeconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            const timerBox = document.getElementById('timer-box');
+            if (timerBox) {
+                timerBox.textContent = `Time: ${formatTime(timeRemaining)}`;
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!gameActive) return;
+
+                timeRemaining -= 1;
+                updateTimerDisplay();
+
+                if (timeRemaining <= 0) {
+                    timeRemaining = 0;
+                    updateTimerDisplay();
+                    endGame('Time is up! Try again.');
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        function endGame(message) {
+            gameActive = false;
+            pathLocked = true;
+            stopTimer();
+
+            const status = document.getElementById('status-message');
+            if (status) status.textContent = message;
+
+            const nextButton = document.getElementById('next-btn');
+            if (nextButton) nextButton.style.display = 'block';
+        }
+
+        function applyCustomTime() {
+            const input = document.getElementById('time-limit-input');
+            const parsedValue = parseInt(input.value, 10);
+            const safeValue = Number.isFinite(parsedValue) ? parsedValue : 30;
+            timeLimit = Math.max(5, Math.min(300, safeValue));
+            input.value = timeLimit;
+            timeRemaining = timeLimit;
+            updateTimerDisplay();
+            buildLevel();
+        }
 
         function changeSettings() {
             difficulty = document.getElementById('difficulty').value;
@@ -397,6 +486,10 @@
             trackedPath = [];
             nextExpectedValue = 1;
             pathLocked = false;
+            gameActive = true;
+            timeRemaining = timeLimit;
+            updateTimerDisplay();
+            startTimer();
 
             const cells = [];
             for (let r = 0; r < size; r++) {
@@ -432,7 +525,7 @@
         }
 
         function handleCellClick(cell, value) {
-            if (pathLocked) return;
+            if (pathLocked || !gameActive) return;
 
             if (Number(value) === nextExpectedValue) {
                 trackedPath.push({ r: Number(cell.dataset.row), c: Number(cell.dataset.col) });
@@ -448,7 +541,9 @@
                 drawPathOverlay();
 
                 if (nextExpectedValue > maxNodes) {
+                    gameActive = false;
                     pathLocked = true;
+                    stopTimer();
                     const status = document.getElementById('status-message');
                     if (status) status.textContent = 'Level cleared! Excellent spiral run.';
                     const nextButton = document.getElementById('next-btn');
@@ -478,6 +573,7 @@
 
         window.addEventListener('load', () => {
             document.getElementById('difficulty').value = difficulty;
+            updateTimerDisplay();
             buildLevel();
         });
     </script>
