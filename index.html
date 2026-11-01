@@ -15,6 +15,7 @@
             --active-teal: #66fcf1;
             --active-bg: rgba(102, 252, 241, 0.15);
             --error-red: #ff4a4a;
+            --warning-orange: #ffb347;
             --grid-size: 4;
         }
 
@@ -112,7 +113,14 @@
             min-width: 60px;
         }
 
-        .timer-box {
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+        .timer-box, .best-time-box {
             background: rgba(102, 252, 241, 0.08);
             border: 1px solid var(--cell-border);
             border-radius: 6px;
@@ -120,8 +128,20 @@
             font-weight: bold;
             font-size: 14px;
             padding: 8px 10px;
-            margin-top: 6px;
             text-align: center;
+            flex: 1;
+        }
+
+        .timer-box.warning {
+            color: var(--warning-orange);
+            border-color: rgba(255, 179, 71, 0.6);
+            background: rgba(255, 179, 71, 0.08);
+        }
+
+        .timer-box.danger {
+            color: var(--error-red);
+            border-color: rgba(255, 74, 74, 0.6);
+            background: rgba(255, 74, 74, 0.08);
         }
 
         .grid-container {
@@ -275,7 +295,10 @@
             </div>
         </div>
 
-        <div class="timer-box" id="timer-box">Time: 00:30</div>
+        <div class="info-row">
+            <div class="timer-box" id="timer-box">Time: 00:30</div>
+            <div class="best-time-box" id="best-time-box">Best: --</div>
+        </div>
 
         <div class="grid-container" id="grid-container">
             <svg class="svg-overlay" id="svg-overlay"></svg>
@@ -290,6 +313,8 @@
     </div>
 
     <script>
+        const STORAGE_KEY = 'matrix-traversal-best-times';
+
         let currentLevel = 1;
         let difficulty = 'medium';
         let nextExpectedValue = 1;
@@ -301,6 +326,26 @@
         let timeRemaining = 30;
         let timerInterval = null;
         let gameActive = true;
+        let bestTimes = {};
+
+        function loadBestTimes() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    bestTimes = JSON.parse(saved);
+                }
+            } catch (error) {
+                bestTimes = {};
+            }
+        }
+
+        function saveBestTimes() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(bestTimes));
+            } catch (error) {
+                // Ignore storage issues in private browsing or blocked storage.
+            }
+        }
 
         function formatTime(totalSeconds) {
             const safeSeconds = Math.max(0, totalSeconds);
@@ -309,10 +354,30 @@
             return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         }
 
+        function getBestTimeForCurrentLevel() {
+            const currentBest = bestTimes[currentLevel];
+            return currentBest == null ? null : Number(currentBest);
+        }
+
+        function updateBestTimeDisplay() {
+            const bestTimeBox = document.getElementById('best-time-box');
+            if (!bestTimeBox) return;
+
+            const best = getBestTimeForCurrentLevel();
+            bestTimeBox.textContent = best == null ? 'Best: --' : `Best: ${formatTime(best)}`;
+        }
+
         function updateTimerDisplay() {
             const timerBox = document.getElementById('timer-box');
-            if (timerBox) {
-                timerBox.textContent = `Time: ${formatTime(timeRemaining)}`;
+            if (!timerBox) return;
+
+            timerBox.textContent = `Time: ${formatTime(timeRemaining)}`;
+            timerBox.classList.remove('warning', 'danger');
+
+            if (timeRemaining <= 10 && timeRemaining > 0) {
+                timerBox.classList.add('warning');
+            } else if (timeRemaining === 0) {
+                timerBox.classList.add('danger');
             }
         }
 
@@ -444,7 +509,6 @@
             if (!trackedPath.length) return;
 
             const size = gridMatrix.length || 4;
-            const cellSize = 100 / size;
 
             let d = '';
             trackedPath.forEach((pos, index) => {
@@ -489,6 +553,7 @@
             gameActive = true;
             timeRemaining = timeLimit;
             updateTimerDisplay();
+            updateBestTimeDisplay();
             startTimer();
 
             const cells = [];
@@ -541,6 +606,14 @@
                 drawPathOverlay();
 
                 if (nextExpectedValue > maxNodes) {
+                    const elapsedSeconds = timeLimit - timeRemaining;
+                    const previousBest = getBestTimeForCurrentLevel();
+                    if (previousBest == null || elapsedSeconds < previousBest) {
+                        bestTimes[currentLevel] = elapsedSeconds;
+                        saveBestTimes();
+                    }
+                    updateBestTimeDisplay();
+
                     gameActive = false;
                     pathLocked = true;
                     stopTimer();
@@ -572,8 +645,10 @@
         }
 
         window.addEventListener('load', () => {
+            loadBestTimes();
             document.getElementById('difficulty').value = difficulty;
             updateTimerDisplay();
+            updateBestTimeDisplay();
             buildLevel();
         });
     </script>
