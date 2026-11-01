@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrix Traversal Pro - 100 Levels</title>
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: #1f2833;
+            --text-primary: #66fcf1;
+            --text-secondary: #c5c6c7;
+            --cell-bg: #0b0c10;
+            --cell-border: #45f3ff33;
+            --active-teal: #66fcf1;
+            --active-bg: rgba(102, 252, 241, 0.15);
+            --error-red: #ff4a4a;
+            --grid-size: 4;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #ffffff;
+            user-select: none;
+        }
+
+        .game-container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            width: 360px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            border: 1px solid #45f3ff1a;
+            text-align: center;
+            position: relative;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .title {
+            color: var(--text-primary);
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .controls-panel {
+            background: rgba(0,0,0,0.2);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .select-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        select, input[type="number"] {
+            background: var(--bg-color);
+            border: 1px solid var(--cell-border);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .level-slider-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+            accent-color: var(--text-primary);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(var(--grid-size), 1fr);
+            grid-gap: 8px;
+            position: relative;
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 8px;
+            border-radius: 10px;
+        }
+
+        .cell {
+            background-color: var(--cell-bg);
+            border: 2px solid var(--cell-border);
+            border-radius: 6px;
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Hiding values for hard memory mode */
+        .cell.hidden-val .number-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cell.completed {
+            border-color: var(--active-teal);
+            color: var(--active-teal);
+            background-color: var(--active-bg);
+        }
+
+        .cell.completed .number-text {
+            opacity: 1 !important;
+        }
+
+        .cell.current-head::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: var(--active-teal);
+            border-radius: 50%;
+            position: absolute;
+        }
+
+        .cell.current-head .number-text {
+            display: none;
+        }
+
+        .cell.error {
+            animation: shake 0.2s ease-in-out;
+            border-color: var(--error-red);
+            color: var(--error-red);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .status-box {
+            font-size: 14px;
+            color: var(--text-primary);
+            min-height: 24px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .action-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            flex: 1;
+            background-color: #45f3ff22;
+            border: 1px solid var(--text-primary);
+            color: #fff;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background-color: var(--text-primary);
+            color: var(--bg-color);
+        }
+
+        .svg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .path-line {
+            stroke: var(--active-teal);
+            stroke-width: 2.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div class="header-row">
+            <div class="title">Matrix Traversal</div>
+            <div id="level-badge" style="font-weight: bold; color: var(--text-primary);">Lvl 1</div>
+        </div>
+
+        <div class="controls-panel">
+            <div class="select-group">
+                <label for="difficulty">Difficulty:</label>
+                <select id="difficulty" onchange="changeSettings()">
+                    <option value="easy">Easy</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="hard">Hard (Hidden Mode)</option>
+                </select>
+            </div>
+            <div class="select-group">
+                <label>Jump to Level:</label>
+                <div class="level-slider-container">
+                    <input type="range" id="level-slider" min="1" max="100" value="1" oninput="syncLevelFromSlider(this.value)">
+                    <input type="number" id="level-input" min="1" max="100" value="1" style="width: 50px;" onchange="syncLevelFromInput(this.value)">
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-container" id="grid-container">
+            <svg class="svg-overlay" id="svg-overlay"></svg>
+        </div>
+
+        <div class="status-box" id="status-message">Click 1 to start the spiral path!</div>
+        
+        <div class="action-row">
+            <button class="btn" onclick="buildLevel()">Restart</button>
+            <button class="btn" id="next-btn" onclick="nextLevel()" style="display:none;">Next Level</button>
+        </div>
+    </div>
+
+    <script>
+        let currentLevel = 1;
+        let difficulty = 'medium';
+        let nextExpectedValue = 1;
+        let maxNodes = 16;
+        let trackedPath = [];
+        let gridMatrix = [];
+
+        function changeSettings() {
+            difficulty = document.getElementById('difficulty').value;
+            buildLevel();
+        }
+
+        function syncLevelFromSlider(val) {
+            currentLevel = parseInt(val);
+            document.getElementById('level-input').value = val;
+            buildLevel();
+        }
+
+        function syncLevelFromInput(val) {
+            let num = Math.max(1, Math.min(100, parseInt(val) || 1));
+            currentLevel = num;
+            document.getElementById('level-slider').value = num;
+            buildLevel();
+        }
+
+        // Procedural Spiral Matrix Engine Generator
+        function generateSpiralData(size, level) {
+            let matrix = Array(size).fill().map(() => Array(size).fill(0));
+            let val = 1;
+            let top = 0, bottom = size - 1, left = 0, right = size - 1;
+
+            while (top <= bottom && left <= right) {
+                for (let i = left; i <= right; i++) matrix[top][i] = val++;
+                top++;
+                for (let i = top; i <= bottom; i++) matrix[i][right] = val++;
+                right--;
+                if (top <= bottom) {
+                    for (let i = right; i >= left; i--) matrix[bottom][i] = val++;
+                    bottom--;
+                }
+                if (left <= right) {
+                    for (let i = bottom; i >= top; i--) matrix[i][left] = val++;
+                    left++;
+                }
+            }
+
+            // Procedural variant transformations based on level seeds
+            if (level % 4 === 1) matrix = rotateMatrix(matrix);
+            if (level % 4 === 2) matrix = flipMatrixHorizontal(matrix);
+            if (level % 4 === 3) matrix = rotateMatrix(flipMatrixHorizontal(matrix));
+            
+            return matrix;
+        }
+
+        function rotateMatrix(matrix) {
+            return matrix[0].map((val, index) => matrix.map(row => row[index]).reverse());
+        }
+
+        function flipMatrixHorizontal(matrix) {
+            return matrix.map(row => [...row].reverse());
+        }
+
+        function buildLevel() {
+            const gridContainer = document.getElementById('grid-container');
+            const svgOverlay = document.getElementById('svg-overlay');
+            
