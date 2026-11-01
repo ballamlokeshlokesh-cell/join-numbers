@@ -310,6 +310,7 @@
                     <option value="hard">Hard (Hidden Mode)</option>
                 </select>
             </div>
+
             <div class="select-group">
                 <label for="time-limit-input">Time Limit:</label>
                 <div class="level-slider-container" style="width: auto;">
@@ -317,6 +318,7 @@
                     <button class="btn mini-btn" type="button" onclick="applyCustomTime()">Set</button>
                 </div>
             </div>
+
             <div class="select-group">
                 <label>Jump to Level:</label>
                 <div class="level-slider-container">
@@ -390,7 +392,7 @@
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(bestTimes));
             } catch (error) {
-                // Ignore storage issues.
+                // ignore storage issues
             }
         }
 
@@ -409,7 +411,7 @@
             try {
                 localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(leaderboard));
             } catch (error) {
-                // Ignore storage issues.
+                // ignore storage issues
             }
         }
 
@@ -488,6 +490,7 @@
 
             const oscillator = context.createOscillator();
             const gainNode = context.createGain();
+
             oscillator.type = type;
             oscillator.frequency.value = frequency;
             gainNode.gain.value = volume;
@@ -497,7 +500,11 @@
             oscillator.start();
 
             setTimeout(() => {
-                oscillator.stop();
+                try {
+                    oscillator.stop();
+                } catch (error) {
+                    // ignore if already stopped
+                }
             }, duration * 1000);
         }
 
