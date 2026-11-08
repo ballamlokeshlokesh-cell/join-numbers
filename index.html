@@ -2,48 +2,56 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matrix Traversal Pro - 100 Levels</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Zig Zag Numbers - Matrix Puzzle Game</title>
     <style>
         :root {
-            --bg-color: #0b0c10;
-            --card-bg: #1f2833;
-            --text-primary: #66fcf1;
-            --text-secondary: #c5c6c7;
-            --cell-bg: #0b0c10;
-            --cell-border: #45f3ff33;
-            --active-teal: #66fcf1;
-            --active-bg: rgba(102, 252, 241, 0.15);
+            --bg-color: #0b0f19;
+            --card-bg: #131c2e;
+            --panel-bg: rgba(19, 28, 46, 0.75);
+            --text-primary: #00f2fe;
+            --text-secondary: #94a3b8;
+            --text-bright: #ffffff;
+            --cell-bg: #0d1527;
+            --cell-border: rgba(0, 242, 254, 0.25);
+            --active-teal: #00f2fe;
+            --active-bg: rgba(0, 242, 254, 0.18);
+            --accent-purple: #9d4edd;
             --error-red: #ff4a4a;
-            --warning-orange: #ffb347;
-            --grid-size: 4;
+            --warning-orange: #f59e0b;
+            --success-green: #10b981;
+            --grid-size: 3;
         }
 
         * {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background-color: var(--bg-color);
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: radial-gradient(circle at 50% 20%, #172554 0%, var(--bg-color) 80%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            color: #ffffff;
+            padding: 12px;
+            color: var(--text-bright);
             user-select: none;
+            touch-action: manipulation;
         }
 
         .game-container {
             background-color: var(--card-bg);
-            border-radius: 16px;
-            padding: 24px;
-            width: min(92vw, 420px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            border: 1px solid #45f3ff1a;
+            border-radius: 20px;
+            padding: 20px;
+            width: min(96vw, 460px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.2);
             text-align: center;
             position: relative;
+            backdrop-filter: blur(10px);
         }
 
         .header-row {
@@ -53,21 +61,99 @@
             margin-bottom: 12px;
         }
 
+        .title-group {
+            text-align: left;
+        }
+
         .title {
             color: var(--text-primary);
-            font-size: 20px;
-            font-weight: bold;
+            font-size: 22px;
+            font-weight: 800;
             margin: 0;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .subtitle {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .badge-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .lvl-badge {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.25), rgba(157, 78, 221, 0.35));
+            border: 1px solid var(--text-primary);
+            color: var(--text-bright);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .sound-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--cell-border);
+            color: var(--text-bright);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .sound-btn:hover {
+            background: rgba(0, 242, 254, 0.2);
+            border-color: var(--text-primary);
+        }
+
+        .pattern-banner {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px dashed var(--cell-border);
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .pattern-name {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        .score-pill {
+            color: #fbbf24;
+            font-weight: 700;
         }
 
         .controls-panel {
-            background: rgba(0,0,0,0.2);
+            background: rgba(0, 0, 0, 0.25);
             padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
             display: flex;
             flex-direction: column;
             gap: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         .select-group {
@@ -78,21 +164,27 @@
         }
 
         label {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--text-secondary);
-            font-weight: bold;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         select, input[type="number"] {
-            background: var(--bg-color);
+            background: #090d16;
             border: 1px solid var(--cell-border);
             color: #fff;
-            padding: 6px 10px;
-            border-radius: 4px;
+            padding: 5px 8px;
+            border-radius: 6px;
             outline: none;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        select:focus, input[type="number"]:focus {
+            border-color: var(--text-primary);
         }
 
         .level-slider-container {
@@ -105,74 +197,103 @@
         input[type="range"] {
             flex-grow: 1;
             accent-color: var(--text-primary);
+            cursor: pointer;
         }
 
         .mini-btn {
-            flex: none;
-            padding: 8px 10px;
-            min-width: 60px;
-        }
-
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-            margin-top: 6px;
-        }
-
-        .timer-box, .best-time-box {
-            background: rgba(102, 252, 241, 0.08);
-            border: 1px solid var(--cell-border);
+            background: rgba(0, 242, 254, 0.15);
+            border: 1px solid var(--text-primary);
+            color: #fff;
             border-radius: 6px;
-            color: var(--text-primary);
-            font-weight: bold;
-            font-size: 14px;
-            padding: 8px 10px;
-            text-align: center;
-            flex: 1;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 8px;
+            transition: all 0.2s;
         }
 
-        .timer-box.warning {
-            color: var(--warning-orange);
-            border-color: rgba(255, 179, 71, 0.6);
-            background: rgba(255, 179, 71, 0.08);
+        .mini-btn:hover {
+            background: var(--text-primary);
+            color: #0b0f19;
         }
 
-        .timer-box.danger {
-            color: var(--error-red);
-            border-color: rgba(255, 74, 74, 0.6);
-            background: rgba(255, 74, 74, 0.08);
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 14px;
         }
 
-        .leaderboard-box {
-            margin-top: 12px;
-            background: rgba(0,0,0,0.18);
+        .stat-box {
+            background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--cell-border);
             border-radius: 8px;
-            padding: 10px;
-            text-align: left;
+            padding: 6px;
+            text-align: center;
         }
 
-        .leaderboard-title {
-            font-size: 12px;
+        .stat-label {
+            font-size: 10px;
             text-transform: uppercase;
             color: var(--text-secondary);
             font-weight: 700;
-            margin-bottom: 8px;
         }
 
-        .leaderboard-item {
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--text-primary);
-            padding: 5px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
+        .stat-val {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--text-bright);
+            margin-top: 2px;
         }
 
-        .leaderboard-item:last-child {
-            border-bottom: none;
+        .stat-box.timer-box.warning .stat-val {
+            color: var(--warning-orange);
+        }
+
+        .stat-box.timer-box.danger .stat-val {
+            color: var(--error-red);
+            animation: pulse-danger 0.8s infinite alternate;
+        }
+
+        @keyframes pulse-danger {
+            from { transform: scale(1); }
+            to { transform: scale(1.08); text-shadow: 0 0 8px rgba(255, 74, 74, 0.8); }
+        }
+
+        /* Board & SVG Layer */
+        .board-wrapper {
+            position: relative;
+            width: 100%;
+            margin: 10px 0 16px;
+            border-radius: 14px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(0, 242, 254, 0.15);
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            padding: 8px;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .svg-overlay {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            right: 8px;
+            bottom: 8px;
+            width: calc(100% - 16px);
+            height: calc(100% - 16px);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .path-line {
+            stroke: var(--active-teal);
+            stroke-width: 4;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0.85;
+            filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.9));
         }
 
         .grid-container {
@@ -180,142 +301,305 @@
             grid-template-columns: repeat(var(--grid-size), minmax(0, 1fr));
             grid-gap: 8px;
             position: relative;
-            margin: 20px 0;
-            background: rgba(0, 0, 0, 0.15);
-            padding: 8px;
-            border-radius: 10px;
+            z-index: 2;
+            width: 100%;
         }
 
         .cell {
             background-color: var(--cell-bg);
             border: 2px solid var(--cell-border);
-            border-radius: 6px;
+            border-radius: 8px;
             aspect-ratio: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 15px;
-            font-weight: bold;
-            color: var(--text-secondary);
+            font-size: clamp(14px, 4vw, 22px);
+            font-weight: 800;
+            color: var(--text-bright);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
             position: relative;
             z-index: 2;
-            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            outline: none;
+            user-select: none;
         }
 
-        .cell.hidden-val .number-text {
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        .cell:hover {
+            transform: scale(1.04);
+            border-color: rgba(0, 242, 254, 0.6);
         }
 
+        .cell:active {
+            transform: scale(0.96);
+        }
+
+        /* Next expected hint cell */
+        .cell.next-target {
+            border-color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+            animation: pulse-target 1.4s infinite alternate;
+        }
+
+        @keyframes pulse-target {
+            from { box-shadow: 0 0 4px rgba(56, 189, 248, 0.3); }
+            to { box-shadow: 0 0 16px rgba(56, 189, 248, 0.8); border-color: #00f2fe; }
+        }
+
+        /* Completed State */
         .cell.completed {
             border-color: var(--active-teal);
-            color: var(--active-teal);
-            background-color: var(--active-bg);
+            color: #090d16;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            box-shadow: 0 0 14px rgba(0, 242, 254, 0.7);
+            transform: scale(1.02);
         }
 
         .cell.completed .number-text {
+            color: #050b14;
+            font-weight: 900;
             opacity: 1 !important;
         }
 
-        .cell.current-head::after {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background-color: var(--active-teal);
-            border-radius: 50%;
-            position: absolute;
+        /* Current active head */
+        .cell.head-node {
+            animation: pulse-head 1s infinite alternate;
+            border-color: #fff;
         }
 
-        .cell.current-head .number-text {
-            display: none;
+        @keyframes pulse-head {
+            from { filter: brightness(1); }
+            to { filter: brightness(1.2) drop-shadow(0 0 8px #00f2fe); }
         }
 
+        /* Hidden mode */
+        .cell.hidden-val .number-text {
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+
+        .cell.revealed-val .number-text {
+            opacity: 1 !important;
+        }
+
+        /* Wrong Move Shake */
         .cell.error {
-            animation: shake 0.2s ease-in-out;
+            animation: shake 0.25s ease-in-out;
             border-color: var(--error-red);
             color: var(--error-red);
+            background: rgba(255, 74, 74, 0.2);
+            box-shadow: 0 0 12px rgba(255, 74, 74, 0.6);
         }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-4px); }
-            75% { transform: translateX(4px); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
         }
 
         .status-box {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-primary);
-            min-height: 24px;
+            min-height: 22px;
             font-weight: 600;
-            margin-top: 10px;
+            margin-bottom: 12px;
+            letter-spacing: 0.3px;
+            transition: color 0.2s;
         }
 
         .action-row {
             display: flex;
             gap: 10px;
-            margin-top: 10px;
         }
 
         .btn {
             flex: 1;
-            background-color: #45f3ff22;
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(157, 78, 221, 0.2));
             border: 1px solid var(--text-primary);
             color: #fff;
             padding: 10px;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 13px;
             transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn:hover {
-            background-color: var(--text-primary);
-            color: var(--bg-color);
+            background: var(--text-primary);
+            color: #0b0f19;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
         }
 
-        .svg-overlay {
+        .btn-next {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-color: #34d399;
+            color: #fff;
+            animation: pulse-next 1.5s infinite;
+        }
+
+        @keyframes pulse-next {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Leaderboard & Help */
+        .collapsible-section {
+            margin-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 10px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 0;
+        }
+
+        .section-header:hover {
+            color: var(--text-primary);
+        }
+
+        .leaderboard-content {
+            margin-top: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 12px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+        }
+
+        .leaderboard-item:last-child {
+            border-bottom: none;
+        }
+
+        .leaderboard-item .rank {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        /* Victory / Game Over Overlay Modal */
+        .modal-overlay {
             position: absolute;
             inset: 0;
-            width: 100%;
-            height: 100%;
+            background: rgba(11, 15, 25, 0.88);
+            backdrop-filter: blur(8px);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            z-index: 50;
+            opacity: 0;
             pointer-events: none;
-            z-index: 1;
+            transition: opacity 0.3s ease;
         }
 
-        .path-line {
-            stroke: var(--active-teal);
-            stroke-width: 2.5;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            opacity: 0.7;
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .modal-stars {
+            font-size: 32px;
+            margin-bottom: 12px;
+            color: #fbbf24;
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+        }
+
+        .modal-stats {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 12px 20px;
+            width: 100%;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .modal-stat-line {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            color: var(--text-secondary);
+        }
+
+        .modal-stat-line span:last-child {
+            color: var(--text-bright);
+            font-weight: 700;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            width: 100%;
         }
     </style>
 </head>
 <body>
     <div class="game-container">
+        <!-- Header -->
         <div class="header-row">
-            <div class="title">Matrix Traversal</div>
-            <div id="level-badge" style="font-weight: bold; color: var(--text-primary);">Lvl 1</div>
+            <div class="title-group">
+                <div class="title">⚡ Zig-Zag Numbers</div>
+                <div class="subtitle">Matrix Traversal Puzzle</div>
+            </div>
+            <div class="badge-group">
+                <div class="lvl-badge" id="level-badge">Lvl 1 / 100</div>
+                <button class="sound-btn" id="sound-btn" title="Toggle Sound" onclick="toggleAudio()" aria-label="Toggle Sound">🔊</button>
+            </div>
         </div>
 
+        <!-- Pattern Banner -->
+        <div class="pattern-banner">
+            <div>Pattern: <span class="pattern-name" id="pattern-name">Horizontal Zig-Zag</span></div>
+            <div>Score: <span class="score-pill" id="score-display">0</span></div>
+        </div>
+
+        <!-- Controls Panel -->
         <div class="controls-panel">
             <div class="select-group">
-                <label for="difficulty">Difficulty:</label>
+                <label for="difficulty">Mode:</label>
                 <select id="difficulty" onchange="changeSettings()">
-                    <option value="easy">Easy</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="hard">Hard (Hidden Mode)</option>
+                    <option value="easy">Easy (Hints On)</option>
+                    <option value="medium" selected>Medium (Standard)</option>
+                    <option value="hard">Hard (Memory Zig-Zag)</option>
                 </select>
             </div>
 
             <div class="select-group">
                 <label for="time-limit-input">Time Limit:</label>
                 <div class="level-slider-container" style="width: auto;">
-                    <input type="number" id="time-limit-input" min="5" max="300" step="5" value="30" style="width: 76px;">
-                    <button class="btn mini-btn" type="button" onclick="applyCustomTime()">Set</button>
+                    <input type="number" id="time-limit-input" min="5" max="300" step="5" value="30" style="width: 70px;">
+                    <button class="mini-btn" type="button" onclick="applyCustomTime()">Set</button>
                 </div>
             </div>
 
@@ -323,38 +607,100 @@
                 <label>Jump to Level:</label>
                 <div class="level-slider-container">
                     <input type="range" id="level-slider" min="1" max="100" value="1" oninput="syncLevelFromSlider(this.value)">
-                    <input type="number" id="level-input" min="1" max="100" value="1" style="width: 50px;" onchange="syncLevelFromInput(this.value)">
+                    <input type="number" id="level-input" min="1" max="100" value="1" style="width: 55px;" onchange="syncLevelFromInput(this.value)">
                 </div>
             </div>
         </div>
 
-        <div class="info-row">
-            <div class="timer-box" id="timer-box">Time: 00:30</div>
-            <div class="best-time-box" id="best-time-box">Best: --</div>
+        <!-- Stats Bar -->
+        <div class="stats-row">
+            <div class="stat-box timer-box" id="timer-box">
+                <div class="stat-label">Time</div>
+                <div class="stat-val" id="time-display">00:30</div>
+            </div>
+            <div class="stat-box" id="best-box">
+                <div class="stat-label">Best Time</div>
+                <div class="stat-val" id="best-time-box">--</div>
+            </div>
+            <div class="stat-box" id="combo-box">
+                <div class="stat-label">Combo</div>
+                <div class="stat-val" id="combo-display">1x 🔥</div>
+            </div>
         </div>
 
-        <div class="leaderboard-box" id="leaderboard-box"></div>
-
-        <div class="grid-container" id="grid-container">
-            <svg class="svg-overlay" id="svg-overlay"></svg>
+        <!-- Board Wrapper (Contains Grid + Independent SVG Overlay) -->
+        <div class="board-wrapper" id="board-wrapper">
+            <svg class="svg-overlay" id="svg-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <!-- Dynamic SVG path connecting clicked numbers -->
+            </svg>
+            <div class="grid-container" id="grid-container">
+                <!-- Dynamically generated zig-zag cells -->
+            </div>
         </div>
 
-        <div class="status-box" id="status-message">Click 1 to start the spiral path!</div>
+        <!-- Status Message -->
+        <div class="status-box" id="status-message">Select 1 to begin the zig-zag trail!</div>
 
+        <!-- Actions -->
         <div class="action-row">
-            <button class="btn" onclick="restartLevel()">Restart</button>
-            <button class="btn" id="next-btn" onclick="nextLevel()" style="display:none;">Next Level</button>
+            <button class="btn" onclick="restartLevel()">🔄 Restart</button>
+            <button class="btn btn-next" id="next-btn" onclick="nextLevel()" style="display:none;">Next Level ➔</button>
+        </div>
+
+        <!-- Collapsible Leaderboard -->
+        <div class="collapsible-section">
+            <div class="section-header" onclick="toggleLeaderboard()">
+                <span>Top Records</span>
+                <span id="lb-chevron">▼</span>
+            </div>
+            <div class="leaderboard-content" id="leaderboard-box" style="display: none;">
+                <div style="color: var(--text-secondary); text-align: center;">No records yet</div>
+            </div>
+        </div>
+
+        <!-- Victory / Game Over Modal -->
+        <div class="modal-overlay" id="game-modal">
+            <div class="modal-title" id="modal-title">Level Cleared! 🎉</div>
+            <div class="modal-stars" id="modal-stars">⭐⭐⭐</div>
+            <div class="modal-stats">
+                <div class="modal-stat-line">
+                    <span>Level:</span>
+                    <span id="modal-level">Lvl 1</span>
+                </div>
+                <div class="modal-stat-line">
+                    <span>Pattern:</span>
+                    <span id="modal-pattern">Horizontal Zig-Zag</span>
+                </div>
+                <div class="modal-stat-line">
+                    <span>Time Taken:</span>
+                    <span id="modal-time">8s</span>
+                </div>
+                <div class="modal-stat-line">
+                    <span>Max Combo:</span>
+                    <span id="modal-combo">4x</span>
+                </div>
+                <div class="modal-stat-line">
+                    <span>Score Earned:</span>
+                    <span id="modal-score">+450</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn" onclick="closeModalAndRestart()">🔄 Retry</button>
+                <button class="btn btn-next" id="modal-next-btn" onclick="closeModalAndNext()">Next Level ➔</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const STORAGE_KEY = 'matrix-traversal-best-times';
-        const LEADERBOARD_KEY = 'matrix-traversal-leaderboard';
+        const STORAGE_KEY = 'zigzag-numbers-best-times';
+        const LEADERBOARD_KEY = 'zigzag-numbers-leaderboard';
+        const SOUND_KEY = 'zigzag-sound-enabled';
 
+        // State
         let currentLevel = 1;
-        let difficulty = 'medium';
+        let difficulty = 'medium'; // 'easy', 'medium', 'hard'
         let nextExpectedValue = 1;
-        let maxNodes = 16;
+        let maxNodes = 9;
         let trackedPath = [];
         let gridMatrix = [];
         let pathLocked = false;
@@ -362,467 +708,782 @@
         let timeLimit = 30;
         let timeRemaining = 30;
         let timerInterval = null;
+        let timerStarted = false;
         let gameActive = true;
         let bestTimes = {};
         let leaderboard = [];
+        let score = 0;
+        let currentCombo = 1;
+        let lastClickTime = 0;
+        let soundEnabled = true;
         let audioContext = null;
+        let isDragging = false;
+        let memoryPeekTimeout = null;
 
-        function getDifficultyMultiplier() {
-            if (difficulty === 'easy') return 1.3;
-            if (difficulty === 'hard') return 0.7;
-            return 1;
-        }
+        // Pattern types and descriptions
+        const PATTERN_TYPES = [
+            { id: 'h-zigzag', name: 'Horizontal Zig-Zag', desc: 'Left-to-right, then right-to-left' },
+            { id: 'v-zigzag', name: 'Vertical Zig-Zag', desc: 'Top-to-bottom, then bottom-to-top' },
+            { id: 'diag-zigzag', name: 'Diagonal Zig-Zag', desc: 'Snake weave across diagonals' },
+            { id: 'rev-h-zigzag', name: 'Inverted Horizontal', desc: 'Zig-zag starting from bottom' },
+            { id: 'rev-v-zigzag', name: 'Inverted Vertical', desc: 'Zig-zag starting from right' },
+            { id: 'corner-diag', name: 'Corner Diagonal Weave', desc: 'Diagonal zig-zag from corner' }
+        ];
 
-        function getEffectiveTimeLimit() {
-            return Math.max(5, Math.round(baseTimeLimit * getDifficultyMultiplier()));
-        }
-
-        function loadBestTimes() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    bestTimes = JSON.parse(saved);
-                }
-            } catch (error) {
-                bestTimes = {};
-            }
-        }
-
-        function saveBestTimes() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(bestTimes));
-            } catch (error) {
-                // ignore storage issues
-            }
-        }
-
-        function loadLeaderboard() {
-            try {
-                const saved = localStorage.getItem(LEADERBOARD_KEY);
-                if (saved) {
-                    leaderboard = JSON.parse(saved);
-                }
-            } catch (error) {
-                leaderboard = [];
-            }
-        }
-
-        function saveLeaderboard() {
-            try {
-                localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(leaderboard));
-            } catch (error) {
-                // ignore storage issues
-            }
-        }
-
-        function formatTime(totalSeconds) {
-            const safeSeconds = Math.max(0, totalSeconds);
-            const minutes = Math.floor(safeSeconds / 60);
-            const seconds = safeSeconds % 60;
-            return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
-
-        function getBestTimeForCurrentLevel() {
-            const currentBest = bestTimes[currentLevel];
-            return currentBest == null ? null : Number(currentBest);
-        }
-
-        function updateBestTimeDisplay() {
-            const bestTimeBox = document.getElementById('best-time-box');
-            if (!bestTimeBox) return;
-
-            const best = getBestTimeForCurrentLevel();
-            bestTimeBox.textContent = best == null ? 'Best: --' : `Best: ${formatTime(best)}`;
-        }
-
-        function updateTimerDisplay() {
-            const timerBox = document.getElementById('timer-box');
-            if (!timerBox) return;
-
-            timerBox.textContent = `Time: ${formatTime(timeRemaining)}`;
-            timerBox.classList.remove('warning', 'danger');
-
-            if (timeRemaining <= 10 && timeRemaining > 0) {
-                timerBox.classList.add('warning');
-            } else if (timeRemaining === 0) {
-                timerBox.classList.add('danger');
-            }
-        }
-
-        function renderLeaderboard() {
-            const leaderboardBox = document.getElementById('leaderboard-box');
-            if (!leaderboardBox) return;
-
-            if (!leaderboard.length) {
-                leaderboardBox.innerHTML = '<div class="leaderboard-title">Leaderboard</div><div style="color: var(--text-secondary); font-size: 13px;">No runs yet</div>';
-                return;
-            }
-
-            const entries = leaderboard.slice(0, 5);
-            const html = [
-                '<div class="leaderboard-title">Leaderboard</div>',
-                ...entries.map((entry, index) => {
-                    return `
-                        <div class="leaderboard-item">
-                            <span>${index + 1}. L${entry.level} ${entry.difficulty}</span>
-                            <span>${formatTime(entry.seconds)}</span>
-                        </div>
-                    `;
-                })
-            ].join('');
-
-            leaderboardBox.innerHTML = html;
-        }
-
-        function getAudioContext() {
+        /* --- Audio Synthesizer (Zero External Dependencies) --- */
+        function initAudio() {
             if (!audioContext) {
                 const AudioCtor = window.AudioContext || window.webkitAudioContext;
                 if (AudioCtor) {
                     audioContext = new AudioCtor();
                 }
             }
-            return audioContext;
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
         }
 
-        function playTone(frequency, duration, volume = 0.05, type = 'sine') {
-            const context = getAudioContext();
-            if (!context) return;
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            localStorage.setItem(SOUND_KEY, JSON.stringify(soundEnabled));
+            updateSoundButton();
+            if (soundEnabled) initAudio();
+        }
 
-            const oscillator = context.createOscillator();
-            const gainNode = context.createGain();
+        function updateSoundButton() {
+            const btn = document.getElementById('sound-btn');
+            if (btn) btn.textContent = soundEnabled ? '🔊' : '🔇';
+        }
 
-            oscillator.type = type;
-            oscillator.frequency.value = frequency;
-            gainNode.gain.value = volume;
+        function playSynthTone(freq, duration, type = 'sine', gainVal = 0.08) {
+            if (!soundEnabled) return;
+            initAudio();
+            if (!audioContext) return;
 
-            oscillator.connect(gainNode);
-            gainNode.connect(context.destination);
-            oscillator.start();
+            try {
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
 
-            setTimeout(() => {
-                try {
-                    oscillator.stop();
-                } catch (error) {
-                    // ignore if already stopped
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+
+                gain.gain.setValueAtTime(gainVal, audioContext.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+
+                osc.start();
+                osc.stop(audioContext.currentTime + duration);
+            } catch (e) {
+                // Ignore audio context scheduling errors
+            }
+        }
+
+        // Ascending pentatonic melody scale for clicks
+        const PENTATONIC_FREQS = [
+            261.63, 293.66, 329.63, 392.00, 440.00,
+            523.25, 587.33, 659.25, 783.99, 880.00,
+            1046.50, 1174.66, 1318.51, 1567.98, 1760.00
+        ];
+
+        function playStepTone(nodeIndex) {
+            const freq = PENTATONIC_FREQS[(nodeIndex - 1) % PENTATONIC_FREQS.length];
+            const multiplier = 1 + Math.floor((nodeIndex - 1) / PENTATONIC_FREQS.length) * 0.25;
+            playSynthTone(freq * multiplier, 0.15, 'triangle', 0.08);
+        }
+
+        function playErrorTone() {
+            playSynthTone(140, 0.22, 'sawtooth', 0.1);
+        }
+
+        function playWinFanfare() {
+            if (!soundEnabled) return;
+            const chords = [523.25, 659.25, 783.99, 1046.50];
+            chords.forEach((freq, idx) => {
+                setTimeout(() => playSynthTone(freq, 0.35, 'triangle', 0.1), idx * 100);
+            });
+        }
+
+        function playGameOverTone() {
+            if (!soundEnabled) return;
+            [300, 260, 220, 180].forEach((freq, idx) => {
+                setTimeout(() => playSynthTone(freq, 0.25, 'sawtooth', 0.08), idx * 120);
+            });
+        }
+
+        /* --- Level Progression & Difficulty Scaling --- */
+        function getGridSize(level) {
+            // Smooth gradual ramp up of grid size from 3x3 to 7x7
+            if (level <= 5) return 3;         // 3x3 = 9 numbers
+            if (level <= 18) return 4;        // 4x4 = 16 numbers
+            if (level <= 45) return 5;        // 5x5 = 25 numbers
+            if (level <= 75) return 6;        // 6x6 = 36 numbers
+            return 7;                         // 7x7 = 49 numbers
+        }
+
+        function getBaseLevelTime(level, size) {
+            // Scales dynamically with node count:
+            // Easy levels give plenty of time to learn, higher levels become slowly tougher
+            const nodes = size * size;
+            let timePerNode = 2.8 - Math.min(1.4, (level - 1) * 0.015);
+            if (difficulty === 'easy') timePerNode *= 1.4;
+            if (difficulty === 'hard') timePerNode *= 0.85;
+
+            return Math.max(10, Math.round(nodes * timePerNode));
+        }
+
+        function getPatternForLevel(level) {
+            // Early levels introduce patterns one by one, then smoothly cycle variations
+            if (level <= 3) return PATTERN_TYPES[0]; // Horizontal Zig-Zag
+            if (level <= 7) return PATTERN_TYPES[1]; // Vertical Zig-Zag
+            if (level <= 12) return PATTERN_TYPES[3]; // Inverted Horizontal
+            if (level <= 18) return PATTERN_TYPES[2]; // Diagonal Zig-Zag
+            if (level <= 25) return PATTERN_TYPES[4]; // Inverted Vertical
+            if (level <= 32) return PATTERN_TYPES[5]; // Corner Diagonal
+
+            // Beyond level 32, varied based on level formula
+            const patternIndex = (level + Math.floor(level / 3)) % PATTERN_TYPES.length;
+            return PATTERN_TYPES[patternIndex];
+        }
+
+        /* --- Zig-Zag Matrix Generation --- */
+        function generateZigZagData(size, level) {
+            const matrix = Array.from({ length: size }, () => Array(size).fill(0));
+            const pattern = getPatternForLevel(level);
+            let val = 1;
+
+            switch (pattern.id) {
+                case 'h-zigzag':
+                    // Row-by-row serpentine: Left-to-right, then right-to-left
+                    for (let r = 0; r < size; r++) {
+                        const cols = r % 2 === 0 
+                            ? [...Array(size).keys()] 
+                            : [...Array(size).keys()].reverse();
+                        for (let c of cols) matrix[r][c] = val++;
+                    }
+                    break;
+
+                case 'v-zigzag':
+                    // Column-by-column serpentine: Top-to-bottom, then bottom-to-top
+                    for (let c = 0; c < size; c++) {
+                        const rows = c % 2 === 0 
+                            ? [...Array(size).keys()] 
+                            : [...Array(size).keys()].reverse();
+                        for (let r of rows) matrix[r][c] = val++;
+                    }
+                    break;
+
+                case 'diag-zigzag':
+                    // Classic diagonal snake weave across matrix diagonals
+                    for (let d = 0; d <= 2 * (size - 1); d++) {
+                        if (d % 2 === 0) {
+                            for (let r = Math.min(d, size - 1); r >= Math.max(0, d - size + 1); r--) {
+                                matrix[r][d - r] = val++;
+                            }
+                        } else {
+                            for (let c = Math.min(d, size - 1); c >= Math.max(0, d - size + 1); c--) {
+                                matrix[d - c][c] = val++;
+                            }
+                        }
+                    }
+                    break;
+
+                case 'rev-h-zigzag':
+                    // Horizontal serpentine starting from bottom row
+                    for (let r = size - 1; r >= 0; r--) {
+                        const cols = (size - 1 - r) % 2 === 0 
+                            ? [...Array(size).keys()] 
+                            : [...Array(size).keys()].reverse();
+                        for (let c of cols) matrix[r][c] = val++;
+                    }
+                    break;
+
+                case 'rev-v-zigzag':
+                    // Vertical serpentine starting from rightmost column
+                    for (let c = size - 1; c >= 0; c--) {
+                        const rows = (size - 1 - c) % 2 === 0 
+                            ? [...Array(size).keys()] 
+                            : [...Array(size).keys()].reverse();
+                        for (let r of rows) matrix[r][c] = val++;
+                    }
+                    break;
+
+                case 'corner-diag':
+                default:
+                    // Diagonal weave starting from top-right corner
+                    for (let d = 0; d <= 2 * (size - 1); d++) {
+                        if (d % 2 === 0) {
+                            for (let r = Math.min(d, size - 1); r >= Math.max(0, d - size + 1); r--) {
+                                const c = size - 1 - (d - r);
+                                matrix[r][c] = val++;
+                            }
+                        } else {
+                            for (let r = Math.max(0, d - size + 1); r <= Math.min(d, size - 1); r++) {
+                                const c = size - 1 - (d - r);
+                                matrix[r][c] = val++;
+                            }
+                        }
+                    }
+                    break;
+            }
+
+            return { matrix, pattern };
+        }
+
+        /* --- Path Overlay Drawing --- */
+        function getCellCenterPercentage(row, col, size) {
+            const step = 100 / size;
+            const x = (col + 0.5) * step;
+            const y = (row + 0.5) * step;
+            return { x, y };
+        }
+
+        function drawPathOverlay() {
+            const svg = document.getElementById('svg-overlay');
+            if (!svg) return;
+
+            svg.innerHTML = '';
+            if (trackedPath.length === 0) return;
+
+            const size = gridMatrix.length || 3;
+            let d = '';
+
+            trackedPath.forEach((pos, index) => {
+                const { x, y } = getCellCenterPercentage(pos.r, pos.c, size);
+                if (index === 0) {
+                    d += `M ${x.toFixed(2)} ${y.toFixed(2)}`;
+                } else {
+                    d += ` L ${x.toFixed(2)} ${y.toFixed(2)}`;
                 }
-            }, duration * 1000);
+            });
+
+            // Glowing SVG Trail
+            const pathElem = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            pathElem.setAttribute('d', d);
+            pathElem.setAttribute('class', 'path-line');
+            svg.appendChild(pathElem);
+
+            // Pulsing head circle at current path head
+            if (trackedPath.length > 0) {
+                const head = trackedPath[trackedPath.length - 1];
+                const { x, y } = getCellCenterPercentage(head.r, head.c, size);
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', x.toFixed(2));
+                circle.setAttribute('cy', y.toFixed(2));
+                circle.setAttribute('r', '2.5');
+                circle.setAttribute('fill', '#ffffff');
+                circle.setAttribute('stroke', '#00f2fe');
+                circle.setAttribute('stroke-width', '1.5');
+                svg.appendChild(circle);
+            }
         }
 
-        function playLevelStartTone() {
-            playTone(620, 0.08, 0.04, 'triangle');
-            setTimeout(() => playTone(820, 0.08, 0.04, 'triangle'), 120);
+        /* --- Storage & High Scores --- */
+        function loadStorage() {
+            try {
+                const savedTimes = localStorage.getItem(STORAGE_KEY);
+                if (savedTimes) bestTimes = JSON.parse(savedTimes);
+
+                const savedLb = localStorage.getItem(LEADERBOARD_KEY);
+                if (savedLb) leaderboard = JSON.parse(savedLb);
+
+                const savedSound = localStorage.getItem(SOUND_KEY);
+                if (savedSound !== null) soundEnabled = JSON.parse(savedSound);
+            } catch (e) {
+                // storage fallback
+            }
+            updateSoundButton();
         }
 
-        function playWarningTone() {
-            playTone(440, 0.12, 0.05, 'sawtooth');
+        function saveStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(bestTimes));
+                localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(leaderboard));
+            } catch (e) {}
         }
 
-        function playFinishTone() {
-            playTone(700, 0.12, 0.05, 'triangle');
-            setTimeout(() => playTone(980, 0.15, 0.05, 'triangle'), 140);
+        function formatTime(totalSeconds) {
+            const safe = Math.max(0, Math.floor(totalSeconds));
+            const mins = Math.floor(safe / 60);
+            const secs = safe % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
 
+        function updateBestDisplay() {
+            const el = document.getElementById('best-time-box');
+            if (!el) return;
+            const best = bestTimes[currentLevel];
+            el.textContent = best != null ? `${best}s` : '--';
+        }
+
+        function updateTimerDisplay() {
+            const timeDisplay = document.getElementById('time-display');
+            const timerBox = document.getElementById('timer-box');
+            if (!timeDisplay || !timerBox) return;
+
+            timeDisplay.textContent = formatTime(timeRemaining);
+            timerBox.classList.remove('warning', 'danger');
+
+            if (timeRemaining <= 10 && timeRemaining > 4) {
+                timerBox.classList.add('warning');
+            } else if (timeRemaining <= 4 && timeRemaining > 0) {
+                timerBox.classList.add('danger');
+            }
+        }
+
+        function updateScoreDisplay() {
+            const scoreEl = document.getElementById('score-display');
+            const comboEl = document.getElementById('combo-display');
+            if (scoreEl) scoreEl.textContent = score;
+            if (comboEl) comboEl.textContent = `${currentCombo}x 🔥`;
+        }
+
+        /* --- Timer Logic --- */
         function startTimer() {
-            clearInterval(timerInterval);
+            if (timerInterval) clearInterval(timerInterval);
+            timerStarted = true;
+
             timerInterval = setInterval(() => {
                 if (!gameActive) return;
 
                 timeRemaining -= 1;
                 updateTimerDisplay();
 
-                if (timeRemaining <= 10 && timeRemaining > 0) {
-                    playWarningTone();
+                if (timeRemaining <= 5 && timeRemaining > 0) {
+                    playSynthTone(500, 0.08, 'sawtooth', 0.04);
                 }
 
                 if (timeRemaining <= 0) {
                     timeRemaining = 0;
                     updateTimerDisplay();
-                    playWarningTone();
-                    endGame('Time is up! Try again.');
+                    handleGameOver('Time is up! Give it another try.');
                 }
             }, 1000);
         }
 
         function stopTimer() {
-            clearInterval(timerInterval);
-            timerInterval = null;
-        }
-
-        function endGame(message) {
-            gameActive = false;
-            pathLocked = true;
-            stopTimer();
-
-            const status = document.getElementById('status-message');
-            if (status) status.textContent = message;
-
-            const nextButton = document.getElementById('next-btn');
-            if (nextButton) nextButton.style.display = 'block';
-        }
-
-        function addLeaderboardEntry() {
-            const entry = {
-                level: Number(currentLevel),
-                difficulty: difficulty,
-                seconds: Math.max(1, timeLimit - timeRemaining)
-            };
-
-            leaderboard.push(entry);
-            leaderboard.sort((a, b) => a.seconds - b.seconds);
-            leaderboard = leaderboard.slice(0, 5);
-            saveLeaderboard();
-            renderLeaderboard();
-        }
-
-        function applyCustomTime() {
-            const input = document.getElementById('time-limit-input');
-            const parsedValue = parseInt(input.value, 10);
-            const safeValue = Number.isFinite(parsedValue) ? parsedValue : 30;
-            baseTimeLimit = Math.max(5, Math.min(300, safeValue));
-            input.value = baseTimeLimit;
-            timeLimit = getEffectiveTimeLimit();
-            timeRemaining = timeLimit;
-            updateTimerDisplay();
-            buildLevel();
-        }
-
-        function changeSettings() {
-            difficulty = document.getElementById('difficulty').value;
-            timeLimit = getEffectiveTimeLimit();
-            timeRemaining = timeLimit;
-            buildLevel();
-        }
-
-        function syncLevelFromSlider(val) {
-            currentLevel = Math.max(1, Math.min(100, parseInt(val) || 1));
-            document.getElementById('level-input').value = currentLevel;
-            buildLevel();
-        }
-
-        function syncLevelFromInput(val) {
-            const num = Math.max(1, Math.min(100, parseInt(val) || 1));
-            currentLevel = num;
-            document.getElementById('level-slider').value = num;
-            buildLevel();
-        }
-
-        function rotateMatrix(matrix) {
-            if (!matrix.length || !matrix[0].length) return matrix;
-            return matrix[0].map((_, index) => matrix.map(row => row[index]).reverse());
-        }
-
-        function flipMatrixHorizontal(matrix) {
-            return matrix.map(row => [...row].reverse());
-        }
-
-        function generateSpiralData(size, level) {
-            const matrix = Array.from({ length: size }, () => Array(size).fill(0));
-            let value = 1;
-            let top = 0;
-            let bottom = size - 1;
-            let left = 0;
-            let right = size - 1;
-
-            while (top <= bottom && left <= right) {
-                for (let i = left; i <= right; i++) matrix[top][i] = value++;
-                top += 1;
-
-                for (let i = top; i <= bottom; i++) matrix[i][right] = value++;
-                right -= 1;
-
-                if (top <= bottom) {
-                    for (let i = right; i >= left; i--) matrix[bottom][i] = value++;
-                    bottom -= 1;
-                }
-
-                if (left <= right) {
-                    for (let i = bottom; i >= top; i--) matrix[i][left] = value++;
-                    left += 1;
-                }
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
             }
-
-            let transformed = matrix;
-            const mod = level % 4;
-            if (mod === 1) transformed = rotateMatrix(transformed);
-            if (mod === 2) transformed = flipMatrixHorizontal(transformed);
-            if (mod === 3) transformed = rotateMatrix(flipMatrixHorizontal(transformed));
-
-            return transformed;
+            timerStarted = false;
         }
 
-        function getGridSize(level) {
-            if (difficulty === 'easy') return Math.min(4, 3 + Math.floor((level - 1) / 22));
-            if (difficulty === 'hard') return Math.min(6, 4 + Math.floor((level - 1) / 15));
-            return Math.min(5, 4 + Math.floor((level - 1) / 18));
-        }
-
-        function getCellCenter(row, col, size) {
-            const cellSize = 100 / size;
-            const x = (col + 0.5) * cellSize;
-            const y = (row + 0.5) * cellSize;
-            return { x, y };
-        }
-
-        function drawPathOverlay() {
-            const svg = document.getElementById('svg-overlay');
-            const grid = document.getElementById('grid-container');
-            if (!svg || !grid) return;
-
-            svg.innerHTML = '';
-            if (!trackedPath.length) return;
-
-            const size = gridMatrix.length || 4;
-
-            let d = '';
-            trackedPath.forEach((pos, index) => {
-                const { x, y } = getCellCenter(pos.r, pos.c, size);
-                const px = ((x / 100) * grid.clientWidth);
-                const py = ((y / 100) * grid.clientHeight);
-
-                if (index === 0) {
-                    d += `M ${px} ${py}`;
-                } else {
-                    d += ` L ${px} ${py}`;
-                }
-            });
-
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            line.setAttribute('d', d);
-            line.setAttribute('class', 'path-line');
-            svg.appendChild(line);
-        }
-
+        /* --- Level Construction --- */
         function buildLevel() {
+            stopTimer();
+            if (memoryPeekTimeout) clearTimeout(memoryPeekTimeout);
+
             const gridContainer = document.getElementById('grid-container');
             const svgOverlay = document.getElementById('svg-overlay');
             const statusMessage = document.getElementById('status-message');
             const levelBadge = document.getElementById('level-badge');
             const nextButton = document.getElementById('next-btn');
-            const difficultySelector = document.getElementById('difficulty');
+            const patternNameEl = document.getElementById('pattern-name');
 
-            if (difficultySelector) difficultySelector.value = difficulty;
-            if (levelBadge) levelBadge.textContent = `Lvl ${currentLevel}`;
-            if (nextButton) nextButton.style.display = 'none';
-            if (statusMessage) statusMessage.textContent = `Click ${nextExpectedValue} to start the spiral path!`;
-
-            timeLimit = getEffectiveTimeLimit();
-            timeRemaining = timeLimit;
             const size = getGridSize(currentLevel);
+            maxNodes = size * size;
             document.documentElement.style.setProperty('--grid-size', size);
 
-            const matrix = generateSpiralData(size, currentLevel);
+            const { matrix, pattern } = generateZigZagData(size, currentLevel);
             gridMatrix = matrix;
             trackedPath = [];
             nextExpectedValue = 1;
             pathLocked = false;
             gameActive = true;
+            timerStarted = false;
+            currentCombo = 1;
+
+            // Set time
+            baseTimeLimit = getBaseLevelTime(currentLevel, size);
+            timeLimit = baseTimeLimit;
+            timeRemaining = timeLimit;
+
+            // Update UI elements
+            if (levelBadge) levelBadge.textContent = `Lvl ${currentLevel} / 100`;
+            if (patternNameEl) patternNameEl.textContent = pattern.name;
+            if (nextButton) nextButton.style.display = 'none';
+            if (statusMessage) statusMessage.textContent = `Select 1 to start the ${pattern.name}!`;
+
+            document.getElementById('level-slider').value = currentLevel;
+            document.getElementById('level-input').value = currentLevel;
+            document.getElementById('time-limit-input').value = baseTimeLimit;
+
             updateTimerDisplay();
-            updateBestTimeDisplay();
-            startTimer();
-            playLevelStartTone();
+            updateBestDisplay();
+            updateScoreDisplay();
 
-            const cells = [];
-            for (let r = 0; r < size; r++) {
-                for (let c = 0; c < size; c++) {
-                    const value = matrix[r][c];
-                    const cell = document.createElement('button');
-                    cell.type = 'button';
-                    cell.className = 'cell';
-                    if (difficulty === 'hard') cell.classList.add('hidden-val');
-                    cell.dataset.value = value;
-                    cell.dataset.row = r;
-                    cell.dataset.col = c;
-                    cell.setAttribute('aria-label', `Cell ${value}`);
-                    cell.innerHTML = `<span class="number-text">${value}</span>`;
-                    cell.onclick = () => handleCellClick(cell, value);
-                    cells.push(cell);
-                }
-            }
+            // Clear SVG Overlay
+            if (svgOverlay) svgOverlay.innerHTML = '';
 
+            // Build grid cells
             if (gridContainer) {
                 gridContainer.innerHTML = '';
-                cells.forEach(cell => gridContainer.appendChild(cell));
+
+                for (let r = 0; r < size; r++) {
+                    for (let c = 0; c < size; c++) {
+                        const val = matrix[r][c];
+                        const cell = document.createElement('button');
+                        cell.type = 'button';
+                        cell.className = 'cell';
+                        cell.id = `cell-${val}`;
+                        cell.dataset.value = val;
+                        cell.dataset.row = r;
+                        cell.dataset.col = c;
+                        cell.setAttribute('aria-label', `Number ${val}`);
+                        cell.innerHTML = `<span class="number-text">${val}</span>`;
+
+                        // Hint next target on easy mode or if val is 1
+                        if (val === 1) cell.classList.add('next-target');
+
+                        // Hard Mode: Memory Zig-Zag
+                        if (difficulty === 'hard') {
+                            cell.classList.add('revealed-val'); // Show preview initially
+                        }
+
+                        // Attach Pointer / Click events
+                        attachCellEvents(cell, val);
+                        gridContainer.appendChild(cell);
+                    }
+                }
             }
 
-            if (svgOverlay) {
-                svgOverlay.innerHTML = '';
-            }
+            // Hard mode memory peek: numbers visible for 3.5s then hide!
+            if (difficulty === 'hard') {
+                if (statusMessage) statusMessage.textContent = `Memorize the zig-zag path! Hiding in 3...`;
+                let count = 3;
+                const countInterval = setInterval(() => {
+                    count--;
+                    if (count > 0 && statusMessage && gameActive) {
+                        statusMessage.textContent = `Memorize the zig-zag path! Hiding in ${count}...`;
+                    } else {
+                        clearInterval(countInterval);
+                    }
+                }, 1000);
 
-            maxNodes = size * size;
-            if (currentLevel > 100) currentLevel = 100;
-            if (document.getElementById('level-slider')) document.getElementById('level-slider').value = currentLevel;
-            if (document.getElementById('level-input')) document.getElementById('level-input').value = currentLevel;
+                memoryPeekTimeout = setTimeout(() => {
+                    if (!gameActive) return;
+                    const cells = document.querySelectorAll('.cell');
+                    cells.forEach(c => {
+                        c.classList.remove('revealed-val');
+                        c.classList.add('hidden-val');
+                    });
+                    if (statusMessage) statusMessage.textContent = `Hidden Mode! Select numbers from 1 to ${maxNodes}`;
+                }, 3500);
+            }
         }
 
-        function handleCellClick(cell, value) {
+        /* --- Drag & Click Event Handling --- */
+        function attachCellEvents(cell, val) {
+            // Click / Tap Handler
+            cell.addEventListener('click', (e) => {
+                e.preventDefault();
+                initAudio();
+                handleCellSelection(cell, Number(val));
+            });
+
+            // Pointer drag support for smooth swipe selection
+            cell.addEventListener('pointerenter', (e) => {
+                if (isDragging && e.buttons === 1) {
+                    handleCellSelection(cell, Number(val));
+                }
+            });
+        }
+
+        // Enable board drag gestures
+        const boardWrapper = document.getElementById('board-wrapper');
+        if (boardWrapper) {
+            boardWrapper.addEventListener('pointerdown', () => { isDragging = true; initAudio(); });
+            window.addEventListener('pointerup', () => { isDragging = false; });
+            window.addEventListener('pointercancel', () => { isDragging = false; });
+        }
+
+        function highlightNextTarget(nextVal) {
+            // Remove previous target highlight
+            document.querySelectorAll('.cell.next-target').forEach(el => el.classList.remove('next-target'));
+
+            // If easy mode or medium mode, show subtle hint for next node
+            if (difficulty !== 'hard' && nextVal <= maxNodes) {
+                const nextCell = document.getElementById(`cell-${nextVal}`);
+                if (nextCell) nextCell.classList.add('next-target');
+            }
+        }
+
+        function handleCellSelection(cell, val) {
             if (pathLocked || !gameActive) return;
 
-            if (Number(value) === nextExpectedValue) {
+            // Start timer on first selection
+            if (!timerStarted) {
+                startTimer();
+            }
+
+            // Correct Next Number Selected
+            if (val === nextExpectedValue) {
+                const now = Date.now();
+                if (now - lastClickTime < 1400 && nextExpectedValue > 1) {
+                    currentCombo = Math.min(10, currentCombo + 1);
+                } else {
+                    currentCombo = 1;
+                }
+                lastClickTime = now;
+
+                // Add to score based on speed and combo
+                const stepPoints = 10 * currentCombo;
+                score += stepPoints;
+                updateScoreDisplay();
+
+                // Mark cell as completed
+                document.querySelectorAll('.cell.head-node').forEach(el => el.classList.remove('head-node'));
+                cell.classList.add('completed', 'head-node');
+                cell.classList.remove('error', 'next-target', 'hidden-val');
+                cell.classList.add('revealed-val');
+
                 trackedPath.push({ r: Number(cell.dataset.row), c: Number(cell.dataset.col) });
-                cell.classList.add('completed');
-                cell.classList.remove('error');
-                nextExpectedValue += 1;
-
-                if (nextExpectedValue <= maxNodes) {
-                    const status = document.getElementById('status-message');
-                    if (status) status.textContent = `Great! Next target: ${nextExpectedValue}`;
-                }
-
                 drawPathOverlay();
+                playStepTone(val);
 
-                if (nextExpectedValue > maxNodes) {
-                    const elapsedSeconds = Math.max(1, timeLimit - timeRemaining);
-                    const previousBest = getBestTimeForCurrentLevel();
-                    if (previousBest == null || elapsedSeconds < previousBest) {
-                        bestTimes[currentLevel] = elapsedSeconds;
-                        saveBestTimes();
-                    }
-                    updateBestTimeDisplay();
-                    addLeaderboardEntry();
-                    playFinishTone();
+                nextExpectedValue += 1;
+                highlightNextTarget(nextExpectedValue);
 
-                    gameActive = false;
-                    pathLocked = true;
-                    stopTimer();
-                    const status = document.getElementById('status-message');
-                    if (status) status.textContent = 'Level cleared! Excellent spiral run.';
-                    const nextButton = document.getElementById('next-btn');
-                    if (nextButton) nextButton.style.display = 'block';
+                const status = document.getElementById('status-message');
+                if (nextExpectedValue <= maxNodes) {
+                    if (status) status.textContent = `Nice! Next target: ${nextExpectedValue} (${currentCombo > 1 ? currentCombo + 'x Combo! 🔥' : 'Zig-zagging'})`;
+                } else {
+                    // Level Cleared!
+                    handleLevelCleared();
                 }
                 return;
             }
 
-            if (Number(value) < nextExpectedValue) {
-                const status = document.getElementById('status-message');
-                if (status) status.textContent = 'Already completed. Pick the next number.';
+            // Already selected cell
+            if (val < nextExpectedValue) {
                 return;
             }
 
+            // Wrong number selected
             cell.classList.add('error');
-            setTimeout(() => cell.classList.remove('error'), 220);
+            setTimeout(() => cell.classList.remove('error'), 250);
+            playErrorTone();
+
+            currentCombo = 1;
+            updateScoreDisplay();
+
             const status = document.getElementById('status-message');
-            if (status) status.textContent = `Wrong move! Expected ${nextExpectedValue}.`;
+            if (status) status.textContent = `Wrong move! Expected ${nextExpectedValue}. Follow the zig-zag path!`;
         }
 
+        /* --- Level Completion & Game Over --- */
+        function handleLevelCleared() {
+            gameActive = false;
+            pathLocked = true;
+            stopTimer();
+
+            const elapsedSeconds = Math.max(1, timeLimit - timeRemaining);
+            const prevBest = bestTimes[currentLevel];
+            let isNewBest = false;
+            if (prevBest == null || elapsedSeconds < prevBest) {
+                bestTimes[currentLevel] = elapsedSeconds;
+                isNewBest = true;
+                saveStorage();
+            }
+            updateBestDisplay();
+
+            // Calculate stars
+            const timeRatio = timeRemaining / timeLimit;
+            let stars = '⭐⭐⭐';
+            let starCount = 3;
+            if (timeRatio < 0.25) {
+                stars = '⭐';
+                starCount = 1;
+            } else if (timeRatio < 0.55) {
+                stars = '⭐⭐';
+                starCount = 2;
+            }
+
+            // Bonus points for clear
+            const levelBonus = currentLevel * 50 + starCount * 50 + timeRemaining * 5;
+            score += levelBonus;
+            updateScoreDisplay();
+
+            // Add to leaderboard
+            addLeaderboardRecord(currentLevel, elapsedSeconds, starCount);
+
+            // Play fanfare
+            playWinFanfare();
+
+            const status = document.getElementById('status-message');
+            if (status) status.textContent = `Level ${currentLevel} Complete! Awesome Zig-Zagging! 🏆`;
+
+            // Display "Next Level" button in action row
+            const nextButton = document.getElementById('next-btn');
+            if (nextButton) nextButton.style.display = 'block';
+
+            // Show celebratory victory modal
+            showVictoryModal(elapsedSeconds, stars, levelBonus, isNewBest);
+        }
+
+        function showVictoryModal(seconds, stars, bonus, isNewBest) {
+            const modal = document.getElementById('game-modal');
+            const pattern = getPatternForLevel(currentLevel);
+
+            document.getElementById('modal-title').textContent = isNewBest ? 'New Record! 🌟' : 'Level Cleared! 🎉';
+            document.getElementById('modal-stars').textContent = stars;
+            document.getElementById('modal-level').textContent = `Level ${currentLevel}`;
+            document.getElementById('modal-pattern').textContent = pattern.name;
+            document.getElementById('modal-time').textContent = `${seconds}s (${timeRemaining}s remaining)`;
+            document.getElementById('modal-combo').textContent = `${currentCombo}x`;
+            document.getElementById('modal-score').textContent = `+${bonus} pts (Total: ${score})`;
+
+            const nextBtn = document.getElementById('modal-next-btn');
+            if (currentLevel >= 100) {
+                nextBtn.textContent = 'Game Complete! 👑';
+            } else {
+                nextBtn.textContent = 'Next Level ➔';
+            }
+
+            modal.classList.add('active');
+        }
+
+        function handleGameOver(message) {
+            gameActive = false;
+            pathLocked = true;
+            stopTimer();
+            playGameOverTone();
+
+            const status = document.getElementById('status-message');
+            if (status) status.textContent = message;
+
+            // Notice: On Game Over, ONLY allow Restart / Retry. Do NOT show Next Level!
+            const nextButton = document.getElementById('next-btn');
+            if (nextButton) nextButton.style.display = 'none';
+
+            // Show Game Over in Modal
+            const modal = document.getElementById('game-modal');
+            document.getElementById('modal-title').textContent = 'Time Up! ⌛';
+            document.getElementById('modal-stars').textContent = '💀';
+            document.getElementById('modal-level').textContent = `Level ${currentLevel}`;
+            document.getElementById('modal-pattern').textContent = getPatternForLevel(currentLevel).name;
+            document.getElementById('modal-time').textContent = 'Expired';
+            document.getElementById('modal-combo').textContent = 'Reset';
+            document.getElementById('modal-score').textContent = '+0';
+
+            const nextBtn = document.getElementById('modal-next-btn');
+            nextBtn.style.display = 'none'; // Cannot proceed on loss
+
+            modal.classList.add('active');
+        }
+
+        function closeModalAndRestart() {
+            document.getElementById('game-modal').classList.remove('active');
+            restartLevel();
+        }
+
+        function closeModalAndNext() {
+            document.getElementById('game-modal').classList.remove('active');
+            nextLevel();
+        }
+
+        /* --- Level Navigation & Controls --- */
         function restartLevel() {
+            document.getElementById('game-modal').classList.remove('active');
+            document.getElementById('modal-next-btn').style.display = 'block';
             buildLevel();
         }
 
         function nextLevel() {
-            currentLevel = Math.min(100, currentLevel + 1);
-            document.getElementById('level-slider').value = currentLevel;
-            document.getElementById('level-input').value = currentLevel;
+            if (currentLevel < 100) {
+                currentLevel += 1;
+                document.getElementById('game-modal').classList.remove('active');
+                document.getElementById('modal-next-btn').style.display = 'block';
+                buildLevel();
+            } else {
+                alert('Congratulations! You completed all 100 Zig-Zag levels! You are a Matrix Master!');
+            }
+        }
+
+        function syncLevelFromSlider(val) {
+            currentLevel = Math.max(1, Math.min(100, parseInt(val, 10) || 1));
             buildLevel();
         }
 
-        window.addEventListener('load', () => {
-            loadBestTimes();
-            loadLeaderboard();
+        function syncLevelFromInput(val) {
+            currentLevel = Math.max(1, Math.min(100, parseInt(val, 10) || 1));
+            buildLevel();
+        }
+
+        function changeSettings() {
+            difficulty = document.getElementById('difficulty').value;
+            buildLevel();
+        }
+
+        function applyCustomTime() {
+            const input = document.getElementById('time-limit-input');
+            const val = parseInt(input.value, 10);
+            baseTimeLimit = Math.max(5, Math.min(300, isNaN(val) ? 30 : val));
+            input.value = baseTimeLimit;
+            buildLevel();
+        }
+
+        /* --- Leaderboard Management --- */
+        function addLeaderboardRecord(level, seconds, stars) {
+            const entry = {
+                level: Number(level),
+                difficulty: difficulty,
+                pattern: getPatternForLevel(level).name,
+                seconds: seconds,
+                date: new Date().toLocaleDateString()
+            };
+
+            leaderboard.push(entry);
+            leaderboard.sort((a, b) => a.seconds - b.seconds);
+            leaderboard = leaderboard.slice(0, 10);
+            saveStorage();
             renderLeaderboard();
-            document.getElementById('difficulty').value = difficulty;
-            document.getElementById('time-limit-input').value = baseTimeLimit;
-            updateTimerDisplay();
-            updateBestTimeDisplay();
+        }
+
+        function renderLeaderboard() {
+            const lbBox = document.getElementById('leaderboard-box');
+            if (!lbBox) return;
+
+            if (!leaderboard.length) {
+                lbBox.innerHTML = '<div style="color: var(--text-secondary); text-align: center;">No records yet</div>';
+                return;
+            }
+
+            const html = leaderboard.map((item, idx) => `
+                <div class="leaderboard-item">
+                    <span class="rank">#${idx + 1} Lvl ${item.level} (${item.difficulty})</span>
+                    <span>${formatTime(item.seconds)}</span>
+                </div>
+            `).join('');
+
+            lbBox.innerHTML = html;
+        }
+
+        function toggleLeaderboard() {
+            const box = document.getElementById('leaderboard-box');
+            const chevron = document.getElementById('lb-chevron');
+            if (box.style.display === 'none') {
+                box.style.display = 'block';
+                chevron.textContent = '▲';
+            } else {
+                box.style.display = 'none';
+                chevron.textContent = '▼';
+            }
+        }
+
+        /* --- Window Resize Handler to Redraw SVG Trail --- */
+        window.addEventListener('resize', () => {
+            if (trackedPath.length > 0) {
+                drawPathOverlay();
+            }
+        });
+
+        /* --- Init on Load --- */
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStorage();
+            renderLeaderboard();
             buildLevel();
         });
     </script>
